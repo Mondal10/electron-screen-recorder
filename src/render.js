@@ -1,6 +1,8 @@
 const { desktopCapturer, remote } = require('electron');
 const { Menu } = remote; // To make menu-popup
 
+const videoElement = document.getElementById('preview-video');
+
 const videoSelectionBtn = document.getElementById('video-selection-btn');
 videoSelectionBtn.addEventListener('click', getVideoSources);
 
@@ -21,3 +23,29 @@ async function getVideoSources() {
 
     videoOptionsMenu.popup();
 }
+
+// MediaRecorder instance to capture footage
+let mediaRecorder;
+const recordedChunks = [];
+
+// Change the video source window to record
+async function selectSource(source) {
+    videoSelectionBtn.innerText = source.name;
+
+    const constraints = {
+        audio: false,
+        video: {
+            mandatory: {
+                chromeMediaSource: 'desktop',
+                chromeMediaSourceId: source.id
+            }
+        }
+    };
+
+    // Create a Stream
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+    // Preview the source in video element
+    videoElement.srcObject = stream;
+    videoElement.play();
+};
