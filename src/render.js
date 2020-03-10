@@ -1,7 +1,10 @@
 const { desktopCapturer, remote } = require('electron');
-const { Menu } = remote; // To make menu-popup
+const { writeFile } = require('fs');
+const { Menu, dialog } = remote; // To make menu-popup
 
 const videoElement = document.getElementById('preview-video');
+const startBtn = document.getElementById('start-btn');
+const stopBtn = document.getElementById('stop-btn');
 
 const videoSelectionBtn = document.getElementById('video-selection-btn');
 videoSelectionBtn.addEventListener('click', getVideoSources);
@@ -48,4 +51,25 @@ async function selectSource(source) {
     // Preview the source in video element
     videoElement.srcObject = stream;
     videoElement.play();
+
+    // Initiate the Media Recorder
+    const options = { mimeType: 'video/webm; codecs=vp9' };
+    mediaRecorder = new MediaRecorder(stream, options);
 };
+
+// Record and Save a Video File
+startBtn.addEventListener('click', e => {
+    mediaRecorder.start();
+    startBtn.classList.add('is-warning');
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    startBtn.innerText = 'Recording';
+});
+
+stopBtn.addEventListener('click', e => {
+    mediaRecorder.stop();
+    startBtn.classList.remove('is-warning');
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    startBtn.innerText = 'Start';
+});
