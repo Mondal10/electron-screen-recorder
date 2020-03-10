@@ -55,6 +55,10 @@ async function selectSource(source) {
     // Initiate the Media Recorder
     const options = { mimeType: 'video/webm; codecs=vp9' };
     mediaRecorder = new MediaRecorder(stream, options);
+
+    // Registering event handler for start and stop recording
+    mediaRecorder.ondataavailable = handleDataAvailable;
+    mediaRecorder.onstop = handleStop;
 };
 
 // Record and Save a Video File
@@ -73,3 +77,27 @@ stopBtn.addEventListener('click', e => {
     stopBtn.disabled = true;
     startBtn.innerText = 'Start';
 });
+
+// Capture all recorder chunks
+function handleDataAvailable(e) {
+    console.log('Video data available');
+    recordedChunks.push(e.data);
+}
+
+// Saves the video file on stop
+async function handleStop(e) {
+    const blob = new Blob(recordedChunks, {
+        type: 'video/webm; codecs=vp9'
+    });
+
+    const buffer = Buffer.from(await blob.arrayBuffer());
+
+    const { filePath } = await dialog.showSaveDialog({
+        buttonLabel: 'Save Video',
+        defaultPath: `vid-${Date.now()}.webm`
+    });
+
+    console.log(filePath);
+
+    writeFile(filePath, buffer, () => console.log('video saved successfully!'));
+}
