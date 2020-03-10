@@ -1,3 +1,7 @@
+/**
+ * Main Process of Electron
+ */
+
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
@@ -11,6 +15,10 @@ const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    // To use Node in Electron’s frontend render process.
+    webPreferences: {
+      nodeIntegration: true
+    }
   });
 
   // and load the index.html of the app.
